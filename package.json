@@ -1,0 +1,28 @@
+{
+  "name": "cjdnsconf",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "flow": "./node_modules/.bin/flow",
+    "lint": "jshint --verbose --config .jshintrc --exclude-path .jshintignore ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cjdelisle/cjdnsconf.git"
+  },
+  "author": "Caleb James DeLisle",
+  "license": "GPL-3.0+",
+  "bugs": {
+    "url": "https://github.com/cjdelisle/cjdnsconf/issues"
+  },
+  "homepage": "https://github.com/cjdelisle/cjdnsconf#readme",
+  "devDependencies": {
+    "flow-bin": "^0.76.0",
+    "jshint": "^2.9.5"
+  },
+  "dependencies": {
+    "diff": "^3.5.0"
+  }
+}
