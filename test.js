@@ -10,6 +10,177 @@ const assertEqual = (x, y) => {
     if (xs !== ys) { throw new Error("\n" + xs + " !== \n" + ys); }
 };
 
+const spliceTest = () => {
+    const orig = `[
+        // hihi
+        "a",
+        // test
+        "b",
+        // hello
+        // world
+        "c",
+        // test2
+        "d"
+    ]`;
+    let conf = Cjdnsconf.parse(orig);
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // test
+    "b",
+    // hello
+    // world
+    "c",
+    // test2
+    "d"
+]`);
+    conf.splice(1, 1, "b2");
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    "b2",
+    // hello
+    // world
+    "c",
+    // test2
+    "d"
+]`);
+    conf = Cjdnsconf.parse(orig);
+    conf.splice(2, 1, "c2");
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // test
+    "b",
+    "c2",
+    // test2
+    "d"
+]`);
+
+    conf = Cjdnsconf.parse(orig);
+    conf.shift();
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // test
+    "b",
+    // hello
+    // world
+    "c",
+    // test2
+    "d"
+]`);
+
+    conf = Cjdnsconf.parse(orig);
+    conf.pop();
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // test
+    "b",
+    // hello
+    // world
+    "c"
+]`);
+
+    conf = Cjdnsconf.parse(orig);
+    conf.push("hello");
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // test
+    "b",
+    // hello
+    // world
+    "c",
+    // test2
+    "d",
+    "hello"
+]`);
+
+    conf = Cjdnsconf.parse(orig);
+    conf.splice(1, 1);
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // hello
+    // world
+    "c",
+    // test2
+    "d"
+]`);
+    conf = Cjdnsconf.parse(orig);
+    conf.splice(2, 1);
+    assertEqual(Cjdnsconf.stringify(conf), `[
+    // hihi
+    "a",
+    // test
+    "b",
+    // test2
+    "d"
+]`);
+
+};
+
+const deleteTest = () => {
+    const orig = `{
+        // hihi
+        "a": "b",
+        // test
+        "b": "c",
+        // hello
+        // world
+        "c": "d",
+        // test2
+        "d": "e"
+    }`;
+    let conf = Cjdnsconf.parse(orig);
+    assertEqual(Cjdnsconf.stringify(conf), `{
+    // hihi
+    "a": "b",
+    // test
+    "b": "c",
+    // hello
+    // world
+    "c": "d",
+    // test2
+    "d": "e"
+}`);
+
+    delete conf.a;
+    assertEqual(Cjdnsconf.stringify(conf), `{
+    // test
+    "b": "c",
+    // hello
+    // world
+    "c": "d",
+    // test2
+    "d": "e"
+}`);
+
+    conf = Cjdnsconf.parse(orig);
+    delete conf.b;
+    assertEqual(Cjdnsconf.stringify(conf), `{
+    // hihi
+    "a": "b",
+    // hello
+    // world
+    "c": "d",
+    // test2
+    "d": "e"
+}`);
+
+    conf = Cjdnsconf.parse(orig);
+    delete conf.c;
+    assertEqual(Cjdnsconf.stringify(conf), `{
+    // hihi
+    "a": "b",
+    // test
+    "b": "c",
+    // test2
+    "d": "e"
+}`);
+
+};
+
 const readFiles = (path, out, cb) => {
     Fs.readdir(path, (err, list) => {
         if (err) { throw err; }
@@ -158,7 +329,6 @@ nThen((w) => {
     error('json.security[800] = 1');
     error('json.security.sort()');
     error('json.security["xxx"] = 1');
-    error('delete json.security[0]');
 
     check('Object.getOwnPropertyDescriptor(json.security, "3").value');
     error('Object.getOwnPropertyDescriptor(json.security, "800").value');
@@ -170,4 +340,14 @@ nThen((w) => {
 
     check('json.security[Symbol()]');
     if (json.security._.type !== 'list') { throw new Error(); }
+
+    check('json.security.splice(1, 2, "hihi")');
+    check('json.security');
+
+    delete json.security[0];
+    xjson.security.splice(0, 1);
+    check('json.security');
+
+    spliceTest();
+    deleteTest();
 });

@@ -125,9 +125,11 @@ const WRAPPERS = {
                 return true;
             },
             deleteProperty: (target, prop) => {
-                const i = keyCache['' + prop];
+                let i = keyCache['' + prop];
                 if (typeof(i) === 'undefined') { return true; }
-                d.val.splice(i, 1);
+                let j = 1;
+                while (d.val[--i] && d.val[i].type !== 'dictentry') { j++; }
+                d.val.splice(++i, j);
                 computeCache();
                 return true;
             },
@@ -183,6 +185,8 @@ const WRAPPERS = {
         const splice = (x, y, ...items) => {
             // Some acrobatics in order to avoid reimplementing the rules of splice()
             const cItems = items.map((x)=>jsonToCjdns(ctx, x));
+            // This is used as a marker so we always know where the empry spot is.
+            cItems.push(null);
             const newKeyCache = [].concat(keyCache);
             // $FlowFixMe yeah yeah lists with different types in them, it's easier
             const spliced = newKeyCache.splice(x, y, ...cItems);
@@ -190,27 +194,40 @@ const WRAPPERS = {
                 wrapGeneric(ctx, l.val[Number(x)])
             ))));
 
-            const newVal = [];
+            const newVal = ([] /*:Array<NewParse_Object_t|NewParse_Comment_t|NewParse_Line_t>*/);
             for (let i = 0, j = 0, skipping = 0; i < newKeyCache.length; i++) {
                 if (typeof(newKeyCache[i]) === 'object') {
+                    skipping = 1;
                     const x = newKeyCache[i];
+                    if (x === null) {
+                        newKeyCache.splice(i, 1);
+                        i--;
+                        continue;
+                    }
                     newKeyCache[i] = newVal.length;
                     newVal.push(x);
                     continue;
                 }
+                let pushList = [];
                 while (j < newKeyCache[i]) {
                     const x = l.val[j];
                     if (!(x.type === 'comment' || x.type === 'line')) {
                         if (skipping === 2) {
-                            throw new Error("cjdnsconf: INTERNAL: found 2 holes in splice list");
+                            throw new Error(
+                                "cjdnsconf: INTERNAL: found 2 holes in splice list, element\n" +
+                                JSON.stringify(x) + "\nshould not be there"
+                            );
                         }
-                        skipping = 1;
+                        pushList = [];
                     }
                     if (skipping !== 1) {
                         newVal.push(l.val[j]);
+                    } else if (x.type === 'comment' || x.type === 'line') {
+                        pushList.push(l.val[j]);
                     }
                     j++;
                 }
+                newVal.push(...pushList);
                 skipping = 2;
                 newKeyCache[i] = newVal.length;
                 newVal.push(l.val[j]);
@@ -297,7 +314,11 @@ const WRAPPERS = {
                 return true;
             },
             deleteProperty: (target, prop) => {
-                throw new Error("cjdnsconf: Delete not possible on lists");
+                if (isNaN(Number(prop))) {
+                    throw new Error("cjdnsconf: cannot assign non-numeric in lists");
+                }
+                splice(prop, 1);
+                return true;
             },
             ownKeys: (target) => {
                 const out = ['length'];

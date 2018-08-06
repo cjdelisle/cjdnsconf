@@ -44,8 +44,10 @@ const SERIALIZERS = {
         const out = ['"'];
         if (!special) {
             out.push(v.toString('utf8'));
-        } else if (special > v.length / 10) {
-            for (let i = 0; i < v.length; i++) { out.push(encodeChar(v[i])); }
+        } else if (special > v.length / 5) {
+            for (let i = 0; i < v.length; i++) {
+                out.push(encodeChar(v[i]));
+            }
         } else {
             for (let i = 0; i < v.length; i++) {
                 out.push(specialChar(v[i]) ? encodeChar(v[i]) : String.fromCharCode(v[i]));
