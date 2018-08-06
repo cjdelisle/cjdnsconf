@@ -1,4 +1,7 @@
 # Cjdnsconf
+
+[![Build Status](https://travis-ci.org/cjdelisle/cjdnsconf.svg?branch=master)](https://travis-ci.org/cjdelisle/cjdnsconf)
+
 Library for manipulating cjdns config files (and anything else like them).
 
 * JSON with comments
@@ -11,13 +14,16 @@ Library for manipulating cjdns config files (and anything else like them).
  * Parse a string or buffer containing a cjdroute.conf style configuration file, returns a
  * special object (see below "how it works") which can be manipulated as a json object and
  * re-serialized.
+ *
+ * @param input <string|buffer> A string or buffer with a cjdns conf format
+ * @param lax <boolean> If true then certain things like trailing or missing commas will be ignored
  */
-Cjdnsconf.parse(string|buffer) => cjdnsconf_object;
+Cjdnsconf.parse(input: string|buffer, lax: boolean) => cjdnsconf_object;
 
 /*
  * Serialize a cjdnsconf json object back to a conf file, preserving comments and empty lines.
  */
-Cjdnsconf.serialize(cjdnsconf_object) => string;
+Cjdnsconf.serialize(obj: cjdnsconf_object) => string;
 ```
 
 ## What is Cjdnsconf
@@ -74,26 +80,32 @@ removed aswell. Because undefined is illegal in cjdns conf format, `delete list[
 alias for `list.splice(3, 1)` to make it easier.
 
 ```javascript
-> const conf2 = Cjdnsconf.parse(`[
-...     "a",
-...     // test
-...     "b",
-...     // hello
-...     // world
-...     "c",
-...     "d"
-... ]`);
-undefined
-> console.log(Cjdnsconf.stringify(conf2));
+> conf = Cjdnsconf.parse(`[
+...         // hihi
+...         "a",
+...         // test
+...         "b",
+...         // hello
+...         // world
+...         "c",
+...         // test2
+...         "d"
+...     ]`);
+[ 'a', 'b', 'c', 'd' ]
+> delete conf[1]
+true
+> console.log(Cjdnsconf.stringify(conf));
 [
+    // hihi
     "a",
-    "c2",
     // hello
     // world
     "c",
+    // test2
     "d"
 ]
 undefined
+>
 ```
 
 Deleting items in objects will also clear the comments immediately before the item.
