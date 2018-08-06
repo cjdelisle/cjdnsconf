@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node ./test.js",
+    "cover": "./node_modules/.bin/istanbul cover ./test.js",
     "flow": "./node_modules/.bin/flow",
     "lint": "jshint --verbose --config .jshintrc --exclude-path .jshintignore ."
   },
@@ -13,16 +14,16 @@
     "url": "git+https://github.com/cjdelisle/cjdnsconf.git"
   },
   "author": "Caleb James DeLisle",
-  "license": "GPL-3.0+",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/cjdelisle/cjdnsconf/issues"
   },
   "homepage": "https://github.com/cjdelisle/cjdnsconf#readme",
   "devDependencies": {
     "flow-bin": "^0.76.0",
-    "jshint": "^2.9.5"
+    "istanbul": "^0.4.5",
+    "jshint": "^2.9.6",
+    "nthen": "^0.1.7"
   },
-  "dependencies": {
-    "diff": "^3.5.0"
-  }
+  "dependencies": {}
 }

@@ -15,7 +15,7 @@ export type NewParse_String_t = { type: 'string', val: Buffer };
 export type NewParse_Int_t = { type: 'number', val: number };
 
 export type NewParse_Object_t =
-    NewParse_Dict_t | NewParse_List_t | NewParse_String_t | NewParse_Int_t | NewParse_Comment_t | NewParse_Line_t | NewParse_DictEntry_t;
+    NewParse_Dict_t | NewParse_List_t | NewParse_String_t | NewParse_Int_t | NewParse_Comment_t | NewParse_Line_t;
 */
 
 const error = (ctx, message) => {
@@ -54,7 +54,7 @@ const parseComment = (ctx) /*:NewParse_Comment_t*/ => {
             out.push(bchar);
             continue;
         }
-        return { type: 'comment', val: new Buffer(out) };
+        return { type: 'comment', val: Buffer.from(out) };
     }
     throw new Error();
 };
@@ -142,7 +142,9 @@ const parseInteger = (ctx) /*:NewParse_Int_t*/ => {
     do {
         out *= 10;
         out += schar - ('0'.charCodeAt(0));
-        if (out > 0x7fffffffffffffff) { throw error(ctx, "number too big"); }
+        if (out > 0x7fffffffffffffff) {
+            throw error(ctx, "number [" + ((negative) ? '-' : '') + out + "] too big");
+        }
         ctx.skip(1);
         schar = ctx.peak();
     } while (schar >= '0'.charCodeAt(0) && schar <= '9'.charCodeAt(0));

@@ -16,7 +16,12 @@ let stringifyGeneric;
 const ONE_LINER_MAX_CHR = 90;
 
 const specialChar = (bchar) => {
-    return !(bchar < 126 && bchar > 31 && bchar !== '\\' && bchar !== '"');
+    return !(
+        bchar < 126 &&
+        bchar > 31 &&
+        bchar !== '\\'.charCodeAt(0) &&
+        bchar !== '"'.charCodeAt(0)
+    );
 };
 
 const indent = (ctx) => {
@@ -40,11 +45,11 @@ const SERIALIZERS = {
         if (!special) {
             out.push(v.toString('utf8'));
         } else if (special > v.length / 10) {
-            for (let i = 0; i < v.length; i++) {
-                out.push(specialChar(v[i]) ? encodeChar(v[i]) : v[i]);
-            }
-        } else {
             for (let i = 0; i < v.length; i++) { out.push(encodeChar(v[i])); }
+        } else {
+            for (let i = 0; i < v.length; i++) {
+                out.push(specialChar(v[i]) ? encodeChar(v[i]) : String.fromCharCode(v[i]));
+            }
         }
         out.push('"');
         return out.join('');
