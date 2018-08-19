@@ -258,6 +258,15 @@ nThen((w) => {
     check('json.security.shift()');
     check('json.security.shift()');
 
+    check('json.security.unshift("lax")');
+    check('json.security[0] = undefined');
+    xjson.security.shift();
+    check('json.security[0]');
+
+    check('json.security.unshift("laxx")');
+    check('json.security[0] = null');
+    xjson.security.shift();
+    check('json.security[0]');
 
     check('json.security.splice(3, 0, "hi")');
 
