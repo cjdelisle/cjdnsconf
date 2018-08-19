@@ -223,6 +223,7 @@ nThen((w) => {
     readFiles('./tests/failstrict/', failstrict, w());
     readFiles('./tests/ok/', ok, w());
 }).nThen((w) => {
+    const t0 = +new Date();
     Object.keys(fail).forEach((n) => { failParse(fail[n], false); });
     Object.keys(failstrict).forEach((n) => { failParse(failstrict[n], true); });
     Object.keys(ok).forEach((n) => {  Cjdnsconf.parse(ok[n], false); });
@@ -367,4 +368,6 @@ nThen((w) => {
 
     spliceTest();
     deleteTest();
+
+    console.log("All tests successful in " + (+new Date() - t0) + 'ms');
 });
