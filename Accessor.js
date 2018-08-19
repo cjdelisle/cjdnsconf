@@ -103,6 +103,15 @@ const WRAPPERS = {
             return wrapGeneric(ctx, d.val[i].v);
         };
         const obj = { 'setuser': 'y' };
+        const deleteProperty = (target, prop) => {
+            let i = keyCache['' + prop];
+            if (typeof(i) === 'undefined') { return true; }
+            let j = 1;
+            while (d.val[--i] && d.val[i].type !== 'dictentry') { j++; }
+            d.val.splice(++i, j);
+            computeCache();
+            return true;
+        };
         return new Proxy(obj, {
             get: get,
             set: (obj, prop, value, receiver) => {
@@ -114,6 +123,9 @@ const WRAPPERS = {
                         "try specifying a different internalName if you want to use " +
                         ctx.internalName);
                 }
+                if (typeof(value) === 'undefined' || value === null) {
+                    return deleteProperty(obj, prop);
+                }
                 let i = keyCache[prop];
                 let ii = (typeof(i) !== 'undefined') ? i : d.val.length;
                 d.val[ii] = {
@@ -124,15 +136,7 @@ const WRAPPERS = {
                 if (typeof(i) === 'undefined') { computeCache(); }
                 return true;
             },
-            deleteProperty: (target, prop) => {
-                let i = keyCache['' + prop];
-                if (typeof(i) === 'undefined') { return true; }
-                let j = 1;
-                while (d.val[--i] && d.val[i].type !== 'dictentry') { j++; }
-                d.val.splice(++i, j);
-                computeCache();
-                return true;
-            },
+            deleteProperty: deleteProperty,
             ownKeys: (target) => {
                 return Object.keys(keyCache);
             },
@@ -310,12 +314,16 @@ const WRAPPERS = {
                 if (isNaN(Number(prop))) {
                     throw new Error("cjdnsconf: cannot assign non-numeric in lists");
                 }
-                set(Number(prop), value);
+                if (typeof(value) === 'undefined' || value === null) {
+                    splice(prop, 1);
+                } else {
+                    set(Number(prop), value);
+                }
                 return true;
             },
             deleteProperty: (target, prop) => {
                 if (isNaN(Number(prop))) {
-                    throw new Error("cjdnsconf: cannot assign non-numeric in lists");
+                    throw new Error("cjdnsconf: cannot delete non-numeric in lists");
                 }
                 splice(prop, 1);
                 return true;

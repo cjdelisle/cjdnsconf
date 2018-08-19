@@ -18,7 +18,7 @@ Library for manipulating cjdns config files (and anything else like them).
  * @param input <string|buffer> A string or buffer with a cjdns conf format
  * @param lax <boolean> If true then certain things like trailing or missing commas will be ignored
  */
-Cjdnsconf.parse(input: string|buffer, lax: boolean) => cjdnsconf_object;
+Cjdnsconf.parse(input: string|buffer, lax: ?boolean) => cjdnsconf_object;
 
 /*
  * Serialize a cjdnsconf json object back to a conf file, preserving comments and empty lines.

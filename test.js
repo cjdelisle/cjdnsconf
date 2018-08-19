@@ -322,8 +322,16 @@ nThen((w) => {
     error('json.xxx = ()=>{}');
     error('json.xxx = Symbol()');
     error('json.xxx = false');
-    error('json.xxx = null');
-    error('json.xxx = undefined');
+
+    check('json.xxx = 1');
+    check('json.xxx = null');
+    delete xjson.xxx;
+    check('json.xxx');
+    
+    check('json.xxx = 1');
+    check('json.xxx = undefined');
+    delete xjson.xxx;
+    check('json.xxx');
 
     error('json.security[1.3] = 1');
     error('json.security[800] = 1');
